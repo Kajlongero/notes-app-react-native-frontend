@@ -1,31 +1,36 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { axiosInstance as axios } from "../utils/axiosInstance";
-import { storage } from "../utils/mmkvStorage";
+import { useAsyncStorage } from "@react-native-async-storage/async-storage";
 
-export const useGet = (API, store) => {
-  const [loading, setLoading] = useState(false);
+export const useGet = () => {
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState({
     err: false,
     statusCode: null,
     message: "",
   });
+  const { getItem } = useAsyncStorage("token");
 
-  const handleGet = async () => {
-    setError({ err: false, message: "", statusCode: null });
+  const handleGet = async (API) => {
     setLoading(true);
+    setError({ err: false, message: "", statusCode: null });
 
-    axios
+    const token = await getItem();
+    const results = await axios
       .get(API, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${storage.getString("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(({ data }) => {
+        setError({ err: false, message: "", statusCode: null });
         setLoading(false);
-        store(data.data);
+
+        return data.data;
       })
       .catch(({ response }) => {
+        setLoading(false);
         return setError({
           err: true,
           message: response.data.message,
@@ -33,13 +38,8 @@ export const useGet = (API, store) => {
         });
       });
 
-    setError({ err: false, message: "", statusCode: null });
-    setLoading(false);
+    return results;
   };
-
-  useEffect(() => {
-    handleGet();
-  }, [API]);
 
   return {
     handleGet,

@@ -1,20 +1,46 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useGlobalStore } from "./stores/useGlobalStore";
+import { Home } from "./screens/Home";
+import { Welcome } from "./screens/Welcome";
+import { Loading } from "./screens/Loading";
+import { Login } from "./screens/Login";
+import { Signup } from "./screens/Signup";
+import { NewNote } from "./screens/NewNote";
+import { EditNote } from "./screens/EditNote";
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const hasSession = useGlobalStore((state) => state.auth.hasSession);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="Loading"
+        screenOptions={{
+          headerShown: false,
+          animation: "ios",
+          contentStyle: {
+            backgroundColor: "#0a0a0a",
+          },
+        }}
+      >
+        {hasSession ? (
+          <>
+            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="New Note" component={NewNote} />
+            <Stack.Screen name="Edit Note" component={EditNote} />
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="Loading" component={Loading} />
+            <Stack.Screen name="Welcome" component={Welcome} />
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Signup" component={Signup} />
+          </>
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

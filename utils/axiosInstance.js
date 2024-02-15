@@ -5,6 +5,6 @@ export const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 5000,
   timeoutErrorMessage: "Connection timeout, try again later",
+  timeout: 5000,
 });

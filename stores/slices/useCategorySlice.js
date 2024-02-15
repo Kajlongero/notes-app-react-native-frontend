@@ -1,25 +1,51 @@
 export const useCategorySlice = (setState, get) => ({
   selectedCategory: "",
-  categories: [],
+  categories: {
+    data: [],
+    pagination: {
+      left: 0,
+      total: 0,
+    },
+  },
 
   handleSelectCategory: (selectedCategory) =>
-    setState((state) => ({ selectedCategory })),
+    setState(() => ({ selectedCategory })),
+
+  handleFullfillCategories: (categories) =>
+    setState((state) => ({
+      categories: { ...categories },
+      selectedCategory: categories.data[0].id,
+    })),
 
   handleAddCategory: (category) =>
-    setState((state) => ({ categories: [category, ...state.categories] })),
+    setState((state) => ({
+      categories: {
+        ...state.categories,
+        pagination: {
+          ...state.categories.pagination,
+          count: state.categories.count + 1,
+          left: state.categories.left + 1,
+        },
+        data: [...state.categories.data, category],
+      },
+    })),
 
   handleUpdateCategory: (categoryId, changes) =>
     setState((state) => {
-      const copy = [...state.categories];
+      const copy = [...state.categories.data];
       const index = copy.findIndex((c) => c.id === categoryId);
 
-      const uniqueCategory = { ...state.categories[index], ...changes };
+      const uniqueCategory = { ...state.categories.data[index], ...changes };
       const newState = [...copy.splice(index, 1, { ...uniqueCategory })];
 
-      return { ...state, categories: [...newState] };
+      return {
+        categories: { ...state.categories, data: [...newState] },
+      };
     }),
-  handleDeleteCategory: (categoryId) =>
-    setState({
-      categories: [...state.categories.filter((c) => c.id !== categoryId)],
-    }),
+  handleDeleteCategory: (categoryId) => (state) => ({
+    categories: {
+      ...state.categories,
+      data: [...state.categories.data.filter((c) => c.id !== categoryId)],
+    },
+  }),
 });
