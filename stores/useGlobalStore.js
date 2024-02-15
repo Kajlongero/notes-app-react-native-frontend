@@ -9,4 +9,11 @@ export const useGlobalStore = create((set, get) => ({
   ...useCategorySlice(set, get),
   ...useNotesSlice(set, get),
   ...useTogglesSlice(set, get),
+
+  clearStore: () => {
+    get().clearAuthSlice();
+    get().clearCategorySlice();
+    get().clearNoteSlice();
+    get().clearToggleSlice();
+  },
 }));

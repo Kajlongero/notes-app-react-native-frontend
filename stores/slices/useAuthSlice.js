@@ -1,3 +1,23 @@
+const initialState = {
+  auth: {
+    email: "",
+    password: "",
+    username: "",
+    hasSession: false,
+  },
+  user: {
+    id: "",
+    email: "",
+    username: "",
+    createdAt: "",
+  },
+  typeError: {
+    email: false,
+    password: false,
+    username: false,
+  },
+};
+
 export const useAuthSlice = (setState, get) => ({
   auth: {
     email: "",
@@ -79,5 +99,11 @@ export const useAuthSlice = (setState, get) => ({
         password: false,
         username: false,
       },
+    })),
+
+  clearAuthSlice: () =>
+    setState((state) => ({
+      ...state,
+      ...initialState,
     })),
 });

@@ -16,20 +16,16 @@ export const useFetch = (API) => {
     setLoading(true);
     setError({ error: false, message: "", statusCode: null });
 
+    console.log(API);
+
     const token = await getItem();
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      method: method,
-    };
 
     const response = await axiosInstance({
       url: `${API}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      data: body,
+      data: body ? body : undefined,
       method: `${method.toUpperCase()}`,
     })
       .then(({ data }) => data.data)

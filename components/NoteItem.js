@@ -41,9 +41,27 @@ export const NoteItem = (props) => {
         onLongPress={handleLongPress}
       >
         <View style={s.innerView}>
-          <Text style={s.title} numberOfLines={1} ellipsizeMode="tail">
-            {title}
-          </Text>
+          <View style={s.priorityAndTitle}>
+            <Text style={s.title} numberOfLines={1} ellipsizeMode="tail">
+              {title}
+            </Text>
+            <Text
+              style={[
+                s.priorityText,
+                props.priorityId === 1 && s.LOW,
+                props.priorityId === 2 && s.MEDIUM,
+                props.priorityId === 3 && s.HIGH,
+                props.priorityId === 4 && s.VERY_HIGH,
+                props.priorityId === 5 && s.IMPORTANT,
+              ]}
+            >
+              {props.priorityId === 1 && "LOW"}
+              {props.priorityId === 2 && "MEDIUM"}
+              {props.priorityId === 3 && "HIGH"}
+              {props.priorityId === 4 && "VERY HIGH"}
+              {props.priorityId === 5 && "IMPORTANT"}
+            </Text>
+          </View>
           <Text style={s.description} numberOfLines={1} ellipsizeMode="tail">
             {description}
           </Text>
@@ -83,6 +101,7 @@ const s = StyleSheet.create({
   },
   innerView: {},
   title: {
+    flex: 17,
     color: "#fff",
     overflow: "hidden",
     letterSpacing: 0.5,
@@ -109,5 +128,33 @@ const s = StyleSheet.create({
   },
   favorite: {
     zIndex: 1,
+  },
+  priorityAndTitle: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 8,
+  },
+  priorityText: {
+    color: "#fff",
+    padding: 4,
+    borderRadius: 6,
+    flex: 6,
+    textAlign: "right",
+  },
+  LOW: {
+    color: "#00FF00",
+  },
+  MEDIUM: {
+    color: "#FFCC00",
+  },
+  HIGH: {
+    color: "#0000FF",
+  },
+  VERY_HIGH: {
+    color: "#FF0000",
+  },
+  IMPORTANT: {
+    color: "#FF9900",
   },
 });

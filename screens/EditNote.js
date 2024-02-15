@@ -99,15 +99,24 @@ export const EditNote = ({ navigation, route }) => {
             onSelect={(sI, index) => {
               setPriorityId(sI.id);
             }}
-            buttonTextAfterSelection={(sI, index) => {
-              return sI.name;
+            buttonTextAfterSelection={({ name }, index) => {
+              return name;
             }}
-            rowTextForSelection={(item, index) => {
-              return item.name;
+            rowTextForSelection={({ name }, index) => {
+              return name;
             }}
             rowStyle={{
               borderColor: "#1a1a1a",
               padding: 4,
+            }}
+            selectedRowTextStyle={{
+              color: (() => {
+                if (priorityId === 1) return s.LOW.borderColor;
+                if (priorityId === 2) return s.MEDIUM.borderColor;
+                if (priorityId === 3) return s.HIGH.borderColor;
+                if (priorityId === 4) return s.VERY_HIGH.borderColor;
+                if (priorityId === 5) return s.IMPORTANT.borderColor;
+              })(),
             }}
             rowTextStyle={{
               color: "#fff",
@@ -117,7 +126,13 @@ export const EditNote = ({ navigation, route }) => {
               borderColor: "#1a1a1a",
               width: 140,
               backgroundColor: "#1a1a1a1",
-              borderColor: "#3a3a3a",
+              borderColor: (() => {
+                if (priorityId === 1) return s.LOW.borderColor;
+                if (priorityId === 2) return s.MEDIUM.borderColor;
+                if (priorityId === 3) return s.HIGH.borderColor;
+                if (priorityId === 4) return s.VERY_HIGH.borderColor;
+                if (priorityId === 5) return s.IMPORTANT.borderColor;
+              })(),
               borderRadius: 12,
               borderWidth: 1,
             }}
@@ -127,7 +142,13 @@ export const EditNote = ({ navigation, route }) => {
               borderRadius: 8,
             }}
             buttonTextStyle={{
-              color: "#777",
+              color: (() => {
+                if (priorityId === 1) return s.LOW.borderColor;
+                if (priorityId === 2) return s.MEDIUM.borderColor;
+                if (priorityId === 3) return s.HIGH.borderColor;
+                if (priorityId === 4) return s.VERY_HIGH.borderColor;
+                if (priorityId === 5) return s.IMPORTANT.borderColor;
+              })(),
             }}
           />
         </View>
@@ -173,5 +194,20 @@ const s = StyleSheet.create({
     alignItems: "center",
     marginTop: 8,
     marginBottom: 16,
+  },
+  LOW: {
+    borderColor: "#00FF00",
+  },
+  MEDIUM: {
+    borderColor: "#FFFF00",
+  },
+  HIGH: {
+    borderColor: "#0000FF",
+  },
+  VERY_HIGH: {
+    borderColor: "#FF0000",
+  },
+  IMPORTANT: {
+    borderColor: "#FFA500",
   },
 });

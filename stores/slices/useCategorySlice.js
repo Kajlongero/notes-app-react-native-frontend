@@ -1,5 +1,18 @@
+const initialState = {
+  selectedCategory: "",
+  selectToDelete: "",
+  categories: {
+    data: [],
+    pagination: {
+      left: 0,
+      total: 0,
+    },
+  },
+};
+
 export const useCategorySlice = (setState, get) => ({
   selectedCategory: "",
+  selectToDelete: "",
   categories: {
     data: [],
     pagination: {
@@ -10,6 +23,9 @@ export const useCategorySlice = (setState, get) => ({
 
   handleSelectCategory: (selectedCategory) =>
     setState(() => ({ selectedCategory })),
+
+  handleSelectToDelete: (selectToDelete) =>
+    setState(() => ({ selectToDelete })),
 
   handleFullfillCategories: (categories) =>
     setState((state) => ({
@@ -47,5 +63,10 @@ export const useCategorySlice = (setState, get) => ({
       ...state.categories,
       data: [...state.categories.data.filter((c) => c.id !== categoryId)],
     },
+  }),
+
+  clearCategorySlice: () => (state) => ({
+    ...state,
+    ...initialState,
   }),
 });

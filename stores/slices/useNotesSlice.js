@@ -222,7 +222,7 @@ export const useNotesSlice = (setState, get) => ({
       },
     })),
 
-  clearAllNoteSlice: () =>
+  clearNoteSlice: () =>
     setState((state) => ({
       ...state,
       ...initialState,
