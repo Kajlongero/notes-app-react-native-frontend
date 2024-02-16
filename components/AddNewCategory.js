@@ -28,6 +28,7 @@ export const AddNewCategory = () => {
 
       handleAddCategory(response);
       toggleNewCategory();
+      setName("");
     }
   };
 

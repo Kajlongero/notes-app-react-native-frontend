@@ -8,6 +8,7 @@ import { Login } from "./screens/Login";
 import { Signup } from "./screens/Signup";
 import { NewNote } from "./screens/NewNote";
 import { EditNote } from "./screens/EditNote";
+import { Favorites } from "./screens/Favorites";
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +32,7 @@ export default function App() {
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="New Note" component={NewNote} />
             <Stack.Screen name="Edit Note" component={EditNote} />
+            <Stack.Screen name="Favorites" component={Favorites} />
           </>
         ) : (
           <>

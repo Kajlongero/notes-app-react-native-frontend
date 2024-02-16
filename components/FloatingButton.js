@@ -10,9 +10,11 @@ export const FloatingButton = ({
   size,
   variant,
   action,
+  visible,
 }) => {
   return (
     <FAB
+      visible={visible}
       label={label}
       icon={icon}
       color={iconColor ?? "#fff"}

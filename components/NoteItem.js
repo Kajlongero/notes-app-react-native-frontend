@@ -9,8 +9,14 @@ export const NoteItem = (props) => {
   const navigate = useNavigation();
 
   const { id, title, description, isFavorite, createdAt } = props;
-  const deleteCategory = useGlobalStore((state) => state.toggleDeleteCategory);
   const updateNote = useGlobalStore((state) => state.handleUpdateNote);
+  const deleteCategory = useGlobalStore((state) => state.toggleDeleteCategory);
+  const toggleModalDeleteNote = useGlobalStore(
+    (state) => state.toggleDeleteNote
+  );
+  const handleSelectNote = useGlobalStore(
+    (state) => state.handleChangeNoteToDelete
+  );
 
   const { error, loading, handleFetch } = useFetch(`${API_UPDATE_NOTES}${id}`);
 
@@ -29,7 +35,8 @@ export const NoteItem = (props) => {
   };
 
   const handleLongPress = () => {
-    console.log("deleted");
+    toggleModalDeleteNote();
+    handleSelectNote(id);
   };
 
   return (

@@ -23,7 +23,6 @@ export const Loading = ({ navigation }) => {
         },
       })
       .then(({ data }) => {
-        updateUser(data.data.user);
         handleAuthSession(true);
       })
       .catch(async ({ response }) => {

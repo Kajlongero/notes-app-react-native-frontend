@@ -62,9 +62,6 @@ export const NewNote = ({ navigation, route }) => {
             action: addNewNote,
             loading: loading,
           },
-          {
-            icon: "dots-vertical",
-          },
         ]}
       />
       <View style={s.newNote}>

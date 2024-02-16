@@ -41,8 +41,11 @@ export const useGet = () => {
     return results;
   };
 
+  const changeLoading = () => setLoading((p) => !p);
+
   return {
     handleGet,
+    changeLoading,
     loading,
     error,
   };

@@ -4,8 +4,10 @@ import { Icon } from "react-native-paper";
 export const EmptyCategories = () => {
   return (
     <View style={s.container}>
-      <Icon source="alert-circle" color="#fff" size={20} />
-      <Text style={s.text}>No categories added, add one</Text>
+      <Icon source="alert-circle" color="#7c25b0" size={20} />
+      <Text style={s.text}>
+        You must have at least one category to create notes
+      </Text>
     </View>
   );
 };

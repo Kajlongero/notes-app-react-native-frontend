@@ -1,25 +1,31 @@
 const initialState = {
+  homeMenu: false,
+
   newCategory: false,
   editCategory: false,
   deleteCategory: false,
 
-  homeMenu: false,
   createNoteMenu: false,
   editNoteMenu: false,
+  deleteNote: false,
 
-  confirmDelete: false,
+  deleteAccount: false,
 };
 
 export const useTogglesSlice = (setState, get) => ({
+  homeMenu: false,
+
   newCategory: false,
   editCategory: false,
   deleteCategory: false,
 
-  homeMenu: false,
   createNoteMenu: false,
   editNoteMenu: false,
+  deleteNote: false,
 
-  confirmDelete: false,
+  deleteAccount: false,
+
+  toggleHomeMenu: () => setState((state) => ({ homeMenu: !state.homeMenu })),
 
   toggleNewCategory: () =>
     setState((state) => ({ newCategory: !state.newCategory })),
@@ -28,16 +34,17 @@ export const useTogglesSlice = (setState, get) => ({
   toggleDeleteCategory: () =>
     setState((state) => ({ deleteCategory: !state.deleteCategory })),
 
-  toggleHomeMenu: () => setState((state) => ({ homeMenu: !state.homeMenu })),
   toggleCreateNoteMenu: () =>
     setState((state) => ({ createNoteMenu: !state.createNoteMenu })),
   toggleEditNoteMenu: () =>
     setState((state) => ({ editNoteMenu: !state.editNoteMenu })),
-
-  toggleConfirmDelete: () =>
+  toggleDeleteNote: () =>
     setState((state) => ({
-      confirmDelete: !state.confirmDelete,
+      deleteNote: !state.deleteNote,
     })),
+
+  toggleDeleteAccount: () =>
+    setState((state) => ({ deleteAccount: !state.deleteAccount })),
 
   clearToggleSlice: () => setState((state) => ({ ...state, ...initialState })),
 });

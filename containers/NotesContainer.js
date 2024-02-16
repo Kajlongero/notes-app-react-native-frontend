@@ -40,7 +40,7 @@ export const NotesContainer = ({ data, loading }) => {
               icon="emoticon-sad"
               iconColor="#7c25b0"
               size={192}
-              title="There is not notes added on this category yet"
+              title="There is not notes yet"
             />
           )
         }

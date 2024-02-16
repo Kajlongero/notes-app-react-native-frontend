@@ -69,9 +69,6 @@ export const EditNote = ({ navigation, route }) => {
             action: updateNote,
             loading: loading,
           },
-          {
-            icon: "dots-vertical",
-          },
         ]}
       />
       <View style={s.newNote}>

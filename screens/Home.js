@@ -6,6 +6,8 @@ import { useGlobalStore } from "../stores/useGlobalStore";
 import { useEffect, useState } from "react";
 import {
   API_ALL_CATEGORIES,
+  API_DELETE_CATEGORY,
+  API_DELETE_NOTES,
   API_DELETE_PROFILE,
   API_GET_NOTES_BY_CATEGORY,
 } from "../utils/APIs";
@@ -16,8 +18,12 @@ import { StyleSheet, View } from "react-native";
 import { useAsyncStorage } from "@react-native-async-storage/async-storage";
 import { ConfirmationModal } from "../components/ConfirmationModal";
 import { useFetch } from "../hooks/useFetch";
+import { MenuComponent } from "../components/MenuComponent";
 
 export const Home = ({ navigation }) => {
+  const noteToDelete = useGlobalStore((s) => s.noteToDelete);
+  const categoryToDelete = useGlobalStore((s) => s.categoryToDelete);
+
   const {
     loading: loadingCat,
     error: errorCat,
@@ -27,41 +33,66 @@ export const Home = ({ navigation }) => {
   const {
     loading: loadingNotes,
     error: errorNotes,
+    changeLoading: changeLoadingNotes,
     handleGet: handleGetNotes,
   } = useGet();
 
   const {
+    loading: loadingDeleteCategory,
+    error: errorDeleteCategory,
+    handleFetch: fetchDeleteCategory,
+  } = useFetch(`${API_DELETE_CATEGORY}${categoryToDelete}`);
+
+  const {
+    loading: loadingDeleteNote,
+    error: errorDeleteNote,
+    handleFetch: fetchDeleteNote,
+  } = useFetch(`${API_DELETE_NOTES}${noteToDelete}`);
+
+  const {
     loading: loadingDelete,
     error: errorDelete,
-    handleFetch: handleDeleteProfile,
+    handleFetch: fetchDeleteAccount,
   } = useFetch(API_DELETE_PROFILE);
-
-  const [offsets, setOffsets] = useState({
-    notes: 0,
-    categories: 0,
-  });
 
   const { removeItem } = useAsyncStorage("token");
 
+  // notes
   const notes = useGlobalStore((s) => s.notes);
   const selectedNotes = useGlobalStore((s) => s.notesSelected);
+  const fullfillNotes = useGlobalStore((s) => s.handleFullfillForSelected);
+  const changeDeleteNote = useGlobalStore((s) => s.handleDeleteNote);
+
+  // categories
   const categories = useGlobalStore((s) => s.categories);
   const selectedCategory = useGlobalStore((s) => s.selectedCategory);
+  const fullfillCategories = useGlobalStore((s) => s.handleFullfillCategories);
+  const changeDeleteCategory = useGlobalStore((s) => s.handleDeleteCategory);
+
+  // toggles
   const handleChangeSelected = useGlobalStore((s) => s.handleChangeSelected);
   const handleSelectCategory = useGlobalStore((s) => s.handleSelectCategory);
-  const fullfillCategories = useGlobalStore((s) => s.handleFullfillCategories);
-  const fullfillNotes = useGlobalStore((s) => s.handleFullfillForSelected);
+  const toggleMenu = useGlobalStore((s) => s.toggleHomeMenu);
+  const toggleModalDeleteNote = useGlobalStore((s) => s.toggleDeleteNote);
+  const toggleModalDeleteCategory = useGlobalStore(
+    (s) => s.toggleDeleteCategory
+  );
+  const toggleModalDeleteAccount = useGlobalStore((s) => s.toggleDeleteAccount);
 
+  // booleans
+  const menuVisible = useGlobalStore((s) => s.homeMenu);
+  const deleteAccountVisible = useGlobalStore((s) => s.deleteAccount);
+  const deleteCategoryVisible = useGlobalStore((s) => s.deleteCategory);
+  const deleteNoteVisible = useGlobalStore((s) => s.deleteNote);
+
+  // cleaners
   const clearStore = useGlobalStore((s) => s.clearStore);
 
-  const visible = useGlobalStore((s) => s.homeMenu);
-  const confirmDelete = useGlobalStore((s) => s.confirmDelete);
-
-  const toggleMenu = useGlobalStore((s) => s.toggleHomeMenu);
-  const toggleConfirmDelete = useGlobalStore((s) => s.toggleConfirmDelete);
-
+  // first render function
   const firstCharge = async () => {
     const categoriesResult = await handleGetCat(API_ALL_CATEGORIES);
+    if (!categoriesResult.data.length) return changeLoadingNotes();
+
     const firstData = await categoriesResult.data[0].id;
 
     fullfillCategories(categoriesResult);
@@ -75,6 +106,8 @@ export const Home = ({ navigation }) => {
     console.log(categories);
   };
 
+  // when another category is selected, it will ask if the store has data from this cat
+  // if true, then we only change, if false, we will call the API to fetch them
   const changeCategoryFetch = async () => {
     if (!selectedCategory) return;
 
@@ -94,18 +127,34 @@ export const Home = ({ navigation }) => {
     }
   };
 
-  const handleLogout = async () => {
+  // function to delete category
+  const handleDeleteCategory = async () => {
+    await fetchDeleteCategory("DELETE");
+
+    changeDeleteCategory(categoryToDelete);
+    toggleModalDeleteCategory();
+  };
+
+  // function to delete note
+  const handleDeleteNote = async () => {
+    await fetchDeleteNote("DELETE");
+
+    changeDeleteNote(noteToDelete);
+    toggleModalDeleteNote();
+  };
+
+  // function to delete account
+  const handleDeleteAccount = async () => {
+    await fetchDeleteAccount("DELETE");
+
     await removeItem();
     clearStore();
   };
 
-  const handleDeleteAccount = async () => {
-    await handleDeleteProfile("DELETE");
-
-    if (!errorDelete.error) {
-      // await removeItem();
-      // clearStore();
-    }
+  // function to clean the token and the stores
+  const handleLogout = async () => {
+    await removeItem();
+    clearStore();
   };
 
   useEffect(() => {
@@ -127,7 +176,7 @@ export const Home = ({ navigation }) => {
             icon: "heart",
             iconColor: "#7c25b0",
             loading: false,
-            action: () => console.log("okay"),
+            action: () => navigation.navigate("Favorites"),
           },
           {
             icon: "dots-vertical",
@@ -138,68 +187,78 @@ export const Home = ({ navigation }) => {
         ]}
       />
       <FloatingButton
-        action={() =>
+        visible={categories.data.length}
+        action={() => {
+          if (!categories.data.length) return;
           navigation.navigate("New Note", {
             create: { categoryId: selectedCategory },
-          })
-        }
+          });
+        }}
         icon="pencil-plus"
         label="Add note"
         iconColor="#fff"
       />
-      <View style={s.menu}>
-        <Menu
-          visible={visible}
-          onDismiss={() => toggleMenu()}
-          anchor={{
-            x: 2000,
-            y: 96,
-          }}
-          contentStyle={{
-            backgroundColor: "#1a1a1a",
-          }}
-          anchorPosition="top"
-          elevation={2}
-          theme={{}}
-        >
-          <Menu.Item
-            title="Logout"
-            theme="light"
-            leadingIcon="logout"
-            titleStyle={{
-              color: "#fff",
-            }}
-            rippleColor="#6a6a6a"
-            onPress={handleLogout}
-          ></Menu.Item>
-          <Menu.Item
-            title="Delete account"
-            theme="dark"
-            rippleColor="#6a6a6a"
-            leadingIcon="account-cancel-outline"
-            titleStyle={{
-              color: "#fff",
-            }}
-            onPress={() => {
+      <MenuComponent
+        visible={menuVisible}
+        dismiss={toggleMenu}
+        posX={368}
+        posY={96}
+        items={[
+          {
+            title: "Logout",
+            leadingIcon: "logout",
+            rippleColor: "#6a6a6a",
+            action: handleLogout,
+          },
+          {
+            title: "Delete account",
+            leadingIcon: "account-minus",
+            rippleColor: "#6a6a6a",
+            action: () => {
               toggleMenu();
-              toggleConfirmDelete();
-            }}
-          ></Menu.Item>
-        </Menu>
-      </View>
+              toggleModalDeleteAccount();
+            },
+          },
+        ]}
+      />
       <ConfirmationModal
-        visible={confirmDelete}
-        toggleConfirmDelete={() => toggleConfirmDelete()}
-        cancelAction={() => toggleConfirmDelete()}
+        visible={deleteAccountVisible}
+        toggleConfirmDelete={() => toggleModalDeleteAccount()}
+        cancelAction={() => toggleModalDeleteAccount()}
         confirmAction={handleDeleteAccount}
         title="Are you sure you want to delete your account?"
         icon="alert"
         iconSize={48}
-        iconColor="#FFFF00"
+        iconColor="#7c25b0"
         loading={loadingDelete}
       />
+      <ConfirmationModal
+        title="Are you sure you want to delete this note?"
+        visible={deleteNoteVisible}
+        icon="alert"
+        iconSize={48}
+        iconColor="#7c25b0"
+        cancelAction={() => toggleModalDeleteNote()}
+        toggleConfirmDelete={() => toggleModalDeleteNote()}
+        confirmAction={handleDeleteNote}
+        loading={loadingDeleteNote}
+      />
+      <ConfirmationModal
+        title="Are you sure you want to delete this category?"
+        visible={deleteCategoryVisible}
+        icon="alert"
+        iconSize={48}
+        iconColor="#7c25b0"
+        cancelAction={() => toggleModalDeleteCategory()}
+        toggleConfirmDelete={() => toggleModalDeleteCategory()}
+        confirmAction={handleDeleteCategory}
+        loading={loadingDeleteCategory}
+      />
       <CategoriesContainer data={categories.data} loading={loadingCat} />
-      <NotesContainer data={selectedNotes.data} loading={loadingNotes} />
+      <NotesContainer
+        data={!selectedNotes.data.length ? [] : selectedNotes.data}
+        loading={loadingNotes}
+      />
       <AddNewCategory />
     </PaperProvider>
   );

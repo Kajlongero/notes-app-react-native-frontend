@@ -1,11 +1,13 @@
 const initialState = {
   notes: [],
+  noteToDelete: "",
   favorites: {
     data: [],
     pagination: {
       count: 0,
       left: 0,
     },
+    alreadyFetched: false,
   },
   notesSelected: {
     categoryId: "",
@@ -23,7 +25,15 @@ const initialState = {
 
 export const useNotesSlice = (setState, get) => ({
   notes: [],
-  favorites: [],
+  favorites: {
+    data: [],
+    pagination: {
+      count: 0,
+      left: 0,
+    },
+    alreadyFetched: false,
+  },
+  noteToDelete: "",
   notesSelected: {
     categoryId: "",
     data: [],
@@ -92,6 +102,11 @@ export const useNotesSlice = (setState, get) => ({
           left: notes.left,
         },
       },
+    })),
+
+  handleChangeNoteToDelete: (noteToDelete) =>
+    setState((state) => ({
+      noteToDelete,
     })),
 
   handleChangeSelected: () =>
@@ -168,6 +183,23 @@ export const useNotesSlice = (setState, get) => ({
       }
 
       return {
+        favorites: {
+          ...state.favorites,
+          pagination: {
+            left:
+              !!note.isFavorite && !!state.favorites.alreadyFetched
+                ? state.favorites.pagination.left + 1
+                : state.favorites.pagination.left,
+            count:
+              !!note.isFavorite && !!state.favorites.alreadyFetched
+                ? state.favorites.pagination.count + 1
+                : state.favorites.pagination.count,
+          },
+          data:
+            !!note.isFavorite && !!state.favorites.alreadyFetched
+              ? [note, ...state.favorites.data]
+              : state.favorites.data,
+        },
         notesSelected: {
           ...state.notesSelected,
           data: [...toChange.sort((a, b) => b.priorityId - a.priorityId)],
@@ -177,15 +209,24 @@ export const useNotesSlice = (setState, get) => ({
 
   handleDeleteNote: (noteId) =>
     setState((state) => ({
+      noteToDelete: "",
       notesSelected: {
         ...state.notesSelected,
-        data: [
-          ...state.notesSelected.data.filter(
-            ({ categoryId }) => categoryId !== noteId
-          ),
-        ],
+        data: [...state.notesSelected.data.filter(({ id }) => id !== noteId)],
       },
     })),
+
+  handleDeleteManyWithCategoryId: (categoryId) =>
+    setState((state) => {
+      return {
+        ...state,
+        notesSelected:
+          state.notesSelected.categoryId === categoryId
+            ? { ...initialState.notesSelected }
+            : { ...state.notesSelected },
+        notes: [...state.notes.filter((n) => n.categoryId !== categoryId)],
+      };
+    }),
 
   toggleFavorites: (noteId) =>
     setState((state) => {

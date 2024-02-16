@@ -9,6 +9,9 @@ export const CategoryItem = ({ id, name }) => {
   const toggleDeleteCategory = useGlobalStore(
     (state) => state.toggleDeleteCategory
   );
+  const handleSelectCategoryToDelete = useGlobalStore(
+    (state) => state.handleSelectCategoryToDelete
+  );
 
   const handlePress = () => {
     handleSelectCategory(id);
@@ -16,6 +19,7 @@ export const CategoryItem = ({ id, name }) => {
 
   const handleOnLongPress = () => {
     toggleDeleteCategory();
+    handleSelectCategoryToDelete(id);
   };
 
   return (

@@ -1,6 +1,6 @@
 const initialState = {
   selectedCategory: "",
-  selectToDelete: "",
+  categoryToDelete: "",
   categories: {
     data: [],
     pagination: {
@@ -12,7 +12,7 @@ const initialState = {
 
 export const useCategorySlice = (setState, get) => ({
   selectedCategory: "",
-  selectToDelete: "",
+  categoryToDelete: "",
   categories: {
     data: [],
     pagination: {
@@ -24,8 +24,8 @@ export const useCategorySlice = (setState, get) => ({
   handleSelectCategory: (selectedCategory) =>
     setState(() => ({ selectedCategory })),
 
-  handleSelectToDelete: (selectToDelete) =>
-    setState(() => ({ selectToDelete })),
+  handleSelectCategoryToDelete: (categoryToDelete) =>
+    setState(() => ({ categoryToDelete })),
 
   handleFullfillCategories: (categories) =>
     setState((state) => ({
@@ -35,6 +35,9 @@ export const useCategorySlice = (setState, get) => ({
 
   handleAddCategory: (category) =>
     setState((state) => ({
+      selectedCategory: !state.categories.data.length
+        ? category.id
+        : state.selectedCategory,
       categories: {
         ...state.categories,
         pagination: {
@@ -58,15 +61,22 @@ export const useCategorySlice = (setState, get) => ({
         categories: { ...state.categories, data: [...newState] },
       };
     }),
-  handleDeleteCategory: (categoryId) => (state) => ({
-    categories: {
-      ...state.categories,
-      data: [...state.categories.data.filter((c) => c.id !== categoryId)],
-    },
-  }),
+  handleDeleteCategory: (categoryId) =>
+    setState((state) => {
+      get().handleDeleteManyWithCategoryId(categoryId);
+      return {
+        selectedCategory:
+          state.selectedCategory === categoryId ? "" : state.selectedCategory,
+        categories: {
+          ...state.categories,
+          data: [...state.categories.data.filter((c) => c.id !== categoryId)],
+        },
+      };
+    }),
 
-  clearCategorySlice: () => (state) => ({
-    ...state,
-    ...initialState,
-  }),
+  clearCategorySlice: () =>
+    setState((state) => ({
+      ...state,
+      ...initialState,
+    })),
 });
