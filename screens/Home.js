@@ -174,7 +174,7 @@ export const Home = ({ navigation }) => {
         rightActions={[
           {
             icon: "heart",
-            iconColor: "#7c25b0",
+            iconColor: "red",
             loading: false,
             action: () => navigation.navigate("Favorites"),
           },
@@ -254,7 +254,11 @@ export const Home = ({ navigation }) => {
         confirmAction={handleDeleteCategory}
         loading={loadingDeleteCategory}
       />
-      <CategoriesContainer data={categories.data} loading={loadingCat} />
+      <CategoriesContainer
+        data={categories.data}
+        loading={loadingCat}
+        blocked={loadingNotes}
+      />
       <NotesContainer
         data={
           selectedNotes.data && !selectedNotes.data.length

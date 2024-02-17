@@ -9,8 +9,9 @@ import { TextInputComponent } from "./TextInputComponent";
 import { ErrorWithText } from "./ErrorWithText";
 
 export const AddNewCategory = () => {
-  const { loading, error, handlePost } = usePost(API_CREATE_CATEGORY);
   const [name, setName] = useState("");
+  const [errorOnName, setErrorOnName] = useState(false);
+  const { loading, error, handlePost } = usePost(API_CREATE_CATEGORY);
 
   const visible = useGlobalStore((s) => s.newCategory);
   const toggleNewCategory = useGlobalStore((s) => s.toggleNewCategory);
@@ -23,11 +24,14 @@ export const AddNewCategory = () => {
   };
 
   const handleCreateCategory = async () => {
+    if (!name.length >= 1) return setErrorOnName(true);
+
     if (!loading) {
-      const response = await handlePost({ name });
+      const response = await handlePost({ name: name.trim() });
 
       handleAddCategory(response);
       toggleNewCategory();
+      setErrorOnName(false);
       setName("");
     }
   };
@@ -54,8 +58,19 @@ export const AddNewCategory = () => {
             autoFocus={true}
             action={(t) => setName(t)}
           />
+          {errorOnName && (
+            <ErrorWithText
+              icon="alert-circle"
+              iconColor="#7c25b0"
+              title="You must write a valid category name"
+            />
+          )}
           {error.err && (
-            <ErrorWithText icon="alert-circle" title={error.message} />
+            <ErrorWithText
+              icon="alert-circle"
+              iconColor="#7c25b0"
+              title={error.message}
+            />
           )}
           {loading && (
             <ActivityIndicator

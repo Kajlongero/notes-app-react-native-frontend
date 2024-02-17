@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useGlobalStore } from "../stores/useGlobalStore";
 
-export const CategoryItem = ({ id, name }) => {
+export const CategoryItem = ({ id, name, blocked }) => {
   const selected = useGlobalStore((state) => state.selectedCategory);
   const handleSelectCategory = useGlobalStore(
     (state) => state.handleSelectCategory
@@ -14,6 +14,7 @@ export const CategoryItem = ({ id, name }) => {
   );
 
   const handlePress = () => {
+    if (blocked) return;
     handleSelectCategory(id);
   };
 

@@ -6,7 +6,7 @@ import { EmptyCategoryItem } from "../components/EmptyCategoryItem";
 import { randomKey } from "../utils/randomKey";
 import { useGlobalStore } from "../stores/useGlobalStore";
 
-export const CategoriesContainer = ({ data, loading }) => {
+export const CategoriesContainer = ({ data, loading, blocked }) => {
   const newCategory = useGlobalStore((s) => s.toggleNewCategory);
 
   return (
@@ -31,7 +31,7 @@ export const CategoriesContainer = ({ data, loading }) => {
           ListEmptyComponent={!loading && <EmptyCategories />}
           renderItem={({ item }, index) =>
             !loading ? (
-              <CategoryItem id={item.id} name={item.name} />
+              <CategoryItem id={item.id} name={item.name} blocked={blocked} />
             ) : (
               <EmptyCategoryItem
                 key={`ghost-child-categories-${randomKey()}`}
@@ -44,7 +44,7 @@ export const CategoriesContainer = ({ data, loading }) => {
           android_ripple={{ color: "#777" }}
           onPress={() => newCategory()}
         >
-          <Icon source="folder-plus" size={28} color="#7c25b0" />
+          <Icon source="folder-plus" size={28} color="#fff" />
         </Pressable>
       </View>
     </>

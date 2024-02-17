@@ -9,6 +9,7 @@ import { Signup } from "./screens/Signup";
 import { NewNote } from "./screens/NewNote";
 import { EditNote } from "./screens/EditNote";
 import { Favorites } from "./screens/Favorites";
+import { StatusBar } from "react-native";
 
 const Stack = createNativeStackNavigator();
 
@@ -16,33 +17,36 @@ export default function App() {
   const hasSession = useGlobalStore((state) => state.auth.hasSession);
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Loading"
-        screenOptions={{
-          headerShown: false,
-          animation: "ios",
-          contentStyle: {
-            backgroundColor: "#0a0a0a",
-          },
-        }}
-      >
-        {hasSession ? (
-          <>
-            <Stack.Screen name="Home" component={Home} />
-            <Stack.Screen name="New Note" component={NewNote} />
-            <Stack.Screen name="Edit Note" component={EditNote} />
-            <Stack.Screen name="Favorites" component={Favorites} />
-          </>
-        ) : (
-          <>
-            <Stack.Screen name="Loading" component={Loading} />
-            <Stack.Screen name="Welcome" component={Welcome} />
-            <Stack.Screen name="Login" component={Login} />
-            <Stack.Screen name="Signup" component={Signup} />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <>
+      <StatusBar backgroundColor="#000" barStyle="light-content" />
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Loading"
+          screenOptions={{
+            headerShown: false,
+            animation: "ios",
+            contentStyle: {
+              backgroundColor: "#0a0a0a",
+            },
+          }}
+        >
+          {hasSession ? (
+            <>
+              <Stack.Screen name="Home" component={Home} />
+              <Stack.Screen name="New Note" component={NewNote} />
+              <Stack.Screen name="Edit Note" component={EditNote} />
+              <Stack.Screen name="Favorites" component={Favorites} />
+            </>
+          ) : (
+            <>
+              <Stack.Screen name="Loading" component={Loading} />
+              <Stack.Screen name="Welcome" component={Welcome} />
+              <Stack.Screen name="Login" component={Login} />
+              <Stack.Screen name="Signup" component={Signup} />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
   );
 }

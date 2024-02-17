@@ -5,6 +5,7 @@ import { useGlobalStore } from "../stores/useGlobalStore";
 import { NavbarTop } from "../components/NavbarTop";
 import { useGet } from "../hooks/useGet";
 import { NoteItem } from "../components/NoteItem";
+import { EmptyNoteItem } from "../components/EmptyNoteItem";
 
 export const Favorites = ({ navigation }) => {
   const favorites = useGlobalStore((s) => s.favorites);
@@ -23,15 +24,17 @@ export const Favorites = ({ navigation }) => {
     firstCharge();
   }, []);
 
+  console.log(favorites.data);
+
   return (
     <View>
       <NavbarTop
         actionArrow={() => navigation.navigate("Home")}
         actionArrowColor="#fff"
-        title="Home"
+        title=" "
         backgroundColor="#0a0a0a"
       />
-      <Text style={s.favText}>User favorites</Text>
+      <Text style={s.favText}>Your favorite notes</Text>
       <FlatList
         data={favorites.data}
         renderItem={({ item }) => <NoteItem {...item} />}

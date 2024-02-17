@@ -100,7 +100,7 @@ export const useNotesSlice = (set, get) => ({
       return {
         ...state,
         favorites: {
-          data: notes.data,
+          data: [...notes.data],
           pagination: {
             left: notes.pagination.left,
             count: notes.pagination.count,
@@ -355,7 +355,7 @@ export const useNotesSlice = (set, get) => ({
         ...state,
         notes: [...change],
         notesSelected:
-          note.categoryId === state.categoryId
+          note.categoryId === state.notesSelected.categoryId
             ? { ...obj }
             : { ...state.notesSelected },
         favorites: {

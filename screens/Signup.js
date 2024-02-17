@@ -58,7 +58,11 @@ export const Signup = ({ navigation }) => {
     if (!isValidUsername || !isValidEmail || !isValidPassword) return;
 
     const user = await handleAuthPost(
-      { email, password, username },
+      {
+        email: email.trim(),
+        password: password.trim(),
+        username: username.trim(),
+      },
       handleAuthSession
     );
 

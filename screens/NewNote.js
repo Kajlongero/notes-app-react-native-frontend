@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, View, StyleSheet, TextInput } from "react-native";
+import { Text, View, StyleSheet, TextInput, Keyboard } from "react-native";
 import { useAsyncStorage } from "@react-native-async-storage/async-storage";
 import { useGlobalStore } from "../stores/useGlobalStore";
 import { NavbarTop } from "../components/NavbarTop";
@@ -34,7 +34,13 @@ export const NewNote = ({ navigation, route }) => {
   const { loading, error, handlePost } = usePost(API_CREATE_NOTES, addNote);
 
   const addNewNote = async () => {
-    if (!create.title.length && !create.description.length) return;
+    Keyboard.dismiss();
+
+    if (!create.title) return alert("You can not create a empty title note");
+    if (!create.description)
+      return alert("You can not create a empty description note");
+    if (!create.priorityId)
+      return alert("You should select a priority for the note");
 
     const obj = {
       title: create.title,
@@ -54,7 +60,10 @@ export const NewNote = ({ navigation, route }) => {
     <>
       <NavbarTop
         backgroundColor="#0a0a0a"
-        actionArrow={() => navigation.navigate("Home")}
+        actionArrow={() => {
+          clearNewNote();
+          navigation.navigate("Home");
+        }}
         title=" "
         rightActions={[
           {

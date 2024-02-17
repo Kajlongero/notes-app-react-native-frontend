@@ -42,7 +42,9 @@ export const EditNote = ({ navigation, route }) => {
   const { loading, error, handleFetch } = useFetch(`${API_UPDATE_NOTES}${id}`);
 
   const updateNote = async () => {
-    if (!title.length && !description.length) return;
+    if (!title) return alert("You can not create a empty title note");
+    if (!description) return alert("You must give a description for the note");
+    if (!priorityId) return alert("You should select a priority for the note");
 
     const obj = {
       title,
