@@ -16,8 +16,6 @@ export const useFetch = (API) => {
     setLoading(true);
     setError({ error: false, message: "", statusCode: null });
 
-    console.log(API);
-
     const token = await getItem();
 
     const response = await axiosInstance({
@@ -30,7 +28,6 @@ export const useFetch = (API) => {
     })
       .then(({ data }) => data.data)
       .catch((data) => {
-        console.log(data);
         if (data.response.status === 500) {
           return setError({
             error: true,

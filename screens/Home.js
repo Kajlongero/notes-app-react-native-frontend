@@ -256,7 +256,11 @@ export const Home = ({ navigation }) => {
       />
       <CategoriesContainer data={categories.data} loading={loadingCat} />
       <NotesContainer
-        data={!selectedNotes.data.length ? [] : selectedNotes.data}
+        data={
+          selectedNotes.data && !selectedNotes.data.length
+            ? []
+            : selectedNotes.data
+        }
         loading={loadingNotes}
       />
       <AddNewCategory />

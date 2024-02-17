@@ -1,3 +1,5 @@
+import { changeByCoincidence } from "../../utils/changeByCoincidence";
+
 const initialState = {
   notes: [],
   noteToDelete: "",
@@ -23,7 +25,7 @@ const initialState = {
   },
 };
 
-export const useNotesSlice = (setState, get) => ({
+export const useNotesSlice = (set, get) => ({
   notes: [],
   favorites: {
     data: [],
@@ -48,7 +50,7 @@ export const useNotesSlice = (setState, get) => ({
   },
 
   updateCreateNoteTitle: (title) =>
-    setState((state) => ({
+    set((state) => ({
       createNote: {
         ...state.createNote,
         title,
@@ -57,7 +59,7 @@ export const useNotesSlice = (setState, get) => ({
     })),
 
   updateCreateNoteDescription: (description) =>
-    setState((state) => ({
+    set((state) => ({
       createNote: {
         ...state.createNote,
         description,
@@ -66,7 +68,7 @@ export const useNotesSlice = (setState, get) => ({
     })),
 
   updateCreateNotePriorityId: (priorityId) =>
-    setState((state) => ({
+    set((state) => ({
       createNote: {
         ...state.createNote,
         priorityId,
@@ -75,7 +77,7 @@ export const useNotesSlice = (setState, get) => ({
     })),
 
   handleFullfillForSelected: (notes) =>
-    setState((state) => ({
+    set((state) => ({
       notes: [
         {
           categoryId: get().selectedCategory,
@@ -94,23 +96,27 @@ export const useNotesSlice = (setState, get) => ({
     })),
 
   handleFullfillFavorites: (notes) =>
-    setState((s) => ({
-      favorites: {
-        data: notes.data,
-        pagination: {
-          count: notes.count,
-          left: notes.left,
+    set((state) => {
+      return {
+        ...state,
+        favorites: {
+          data: notes.data,
+          pagination: {
+            left: notes.pagination.left,
+            count: notes.pagination.count,
+          },
+          alreadyFetched: true,
         },
-      },
-    })),
+      };
+    }),
 
   handleChangeNoteToDelete: (noteToDelete) =>
-    setState((state) => ({
+    set((state) => ({
       noteToDelete,
     })),
 
   handleChangeSelected: () =>
-    setState((state) => {
+    set((state) => {
       const cId = get().selectedCategory;
 
       const filterInterest = state.notes.filter((n) => n.categoryId === cId)[0];
@@ -143,7 +149,7 @@ export const useNotesSlice = (setState, get) => ({
     }),
 
   handleAddMore: (notes) =>
-    setState((state) => ({
+    set((state) => ({
       notesSelected: {
         ...state.notesSelected,
         data: [...notes, ...state.notesSelected.data].sort(
@@ -153,7 +159,7 @@ export const useNotesSlice = (setState, get) => ({
     })),
 
   handleAddNote: (note) =>
-    setState((state) => ({
+    set((state) => ({
       notesSelected: {
         ...state.notesSelected,
         data: [note, ...state.notesSelected.data].sort(
@@ -163,7 +169,7 @@ export const useNotesSlice = (setState, get) => ({
     })),
 
   handleUpdateNote: (note) =>
-    setState((state) => {
+    set((state) => {
       const getted = state.notesSelected.data.filter((n) => n.id === note.id);
       const newCopy = {
         ...getted,
@@ -186,10 +192,7 @@ export const useNotesSlice = (setState, get) => ({
         favorites: {
           ...state.favorites,
           pagination: {
-            left:
-              !!note.isFavorite && !!state.favorites.alreadyFetched
-                ? state.favorites.pagination.left + 1
-                : state.favorites.pagination.left,
+            ...state.favorites.pagination,
             count:
               !!note.isFavorite && !!state.favorites.alreadyFetched
                 ? state.favorites.pagination.count + 1
@@ -208,7 +211,7 @@ export const useNotesSlice = (setState, get) => ({
     }),
 
   handleDeleteNote: (noteId) =>
-    setState((state) => ({
+    set((state) => ({
       noteToDelete: "",
       notesSelected: {
         ...state.notesSelected,
@@ -217,7 +220,7 @@ export const useNotesSlice = (setState, get) => ({
     })),
 
   handleDeleteManyWithCategoryId: (categoryId) =>
-    setState((state) => {
+    set((state) => {
       return {
         ...state,
         notesSelected:
@@ -228,27 +231,150 @@ export const useNotesSlice = (setState, get) => ({
       };
     }),
 
-  toggleFavorites: (noteId) =>
-    setState((state) => {
-      const isOnList = state.favorites.data.some((n) => n.id === noteId);
+  toggleFavorites: (note) =>
+    set((state) => {
+      const allNotes = state.notes;
+      const actualNotes = state.notesSelected;
+      const pushDataUpdated = [];
 
-      const getEverything = [];
-      state.notes.map(({ data }) => {
-        getEverything.push(...data);
-      });
-      const filterInterest = getEverything.filter((n) => n.id === noteId);
+      for (let i = 0; i < allNotes.length; i++) {
+        if (allNotes[i].categoryId !== actualNotes.categoryId) {
+          pushDataUpdated.push({ ...allNotes[i] });
+          continue;
+        }
 
-      if (!filterInterest && isOnList)
+        if (allNotes[i].categoryId === actualNotes.categoryId)
+          pushDataUpdated.push({ ...actualNotes });
+      }
+
+      const some = pushDataUpdated.some(
+        (n) => n.categoryId === note.categoryId
+      );
+
+      if (some && state.favorites.alreadyFetched) {
+        get().handleUpdateNote(note);
+
         return {
           favorites: {
             ...state.favorites,
-            data: [...state.favorites.data.filter((n) => n.id !== noteId)],
+            data: note.isFavorite
+              ? [note, ...state.favorites.data]
+              : state.favorites.data.filter((n) => n.id !== note.id),
           },
         };
+      }
+
+      if (!some && state.favorites.alreadyFetched) {
+        return {
+          favorites: {
+            ...state.favorites,
+            data: state.favorites.data.filter((n) => n.id !== note.id),
+            pagination: {
+              ...state.favorites.pagination,
+              count: state.favorites.pagination.count - 1,
+            },
+          },
+        };
+      }
+
+      if (some && !state.favorites.alreadyFetched) {
+        const newArrToUpdate = [];
+        const data = actualNotes.data;
+
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].id === note.id) {
+            newArrToUpdate.push({ ...note });
+          }
+          if (data[i].id !== note.id) {
+            newArrToUpdate.push({ ...data[i] });
+          }
+        }
+
+        return {
+          notes: [...pushDataUpdated],
+          notesSelected: {
+            ...state.notesSelected,
+            data: [...newArrToUpdate],
+          },
+        };
+      }
+
+      return state;
+    }),
+
+  handleAddFavorites: (note) =>
+    set((state) => {
+      const canAdd = state.favorites.alreadyFetched;
+
+      const getNotes = state.notes;
+      const actual = state.notesSelected;
+
+      const newActual = changeByCoincidence(note, actual.data, "id");
+      const obj = { ...actual, data: [...newActual] };
+
+      const change = changeByCoincidence(obj, getNotes, "categoryId");
+
+      return {
+        ...state,
+        notes: [...change],
+        notesSelected: {
+          ...obj,
+        },
+        favorites: {
+          ...state.favorites,
+          data: canAdd
+            ? [note, ...state.favorites.data]
+            : [...state.favorites.data],
+          pagination: {
+            ...state.favorites.pagination,
+            count: canAdd
+              ? state.favorites.pagination.count + 1
+              : state.favorites.pagination.count,
+          },
+        },
+      };
+    }),
+
+  handleRemoveFromFavorites: (note) =>
+    set((state) => {
+      const canAdd = state.favorites.alreadyFetched;
+
+      const getNotes = [...state.notes];
+      const categoryBelong =
+        note.categoryId === state.categoryId
+          ? state.notesSelected
+          : getNotes.filter((n) => n.categoryId === note.categoryId)[0];
+      const notesBelong = categoryBelong;
+
+      const newActual = changeByCoincidence(note, notesBelong.data, "id");
+      const obj = { ...categoryBelong, data: [...newActual] };
+
+      const change = changeByCoincidence(obj, getNotes, "categoryId");
+
+      return {
+        ...state,
+        notes: [...change],
+        notesSelected:
+          note.categoryId === state.categoryId
+            ? { ...obj }
+            : { ...state.notesSelected },
+        favorites: {
+          ...state.favorites,
+          data: canAdd
+            ? [...state.favorites.data.filter((n) => n.id !== note.id)]
+            : [...state.favorites.data],
+          pagination: {
+            ...state.favorites.pagination,
+            count: canAdd
+              ? state.favorites.pagination.count - 1
+              : state.favorites.pagination.count,
+          },
+        },
+      };
     }),
 
   clearNewNote: () =>
-    setState((state) => ({
+    set((state) => ({
       ...state,
       createNote: {
         ...initialState.createNote,
@@ -256,7 +382,7 @@ export const useNotesSlice = (setState, get) => ({
     })),
 
   clearEditNote: () =>
-    setState((state) => ({
+    set((state) => ({
       ...state,
       editNote: {
         ...initialState.editNote,
@@ -264,7 +390,7 @@ export const useNotesSlice = (setState, get) => ({
     })),
 
   clearNoteSlice: () =>
-    setState((state) => ({
+    set((state) => ({
       ...state,
       ...initialState,
     })),

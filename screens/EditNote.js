@@ -5,7 +5,7 @@ import { NavbarTop } from "../components/NavbarTop";
 import { usePost } from "../hooks/usePost";
 import SelectDropdown from "react-native-select-dropdown";
 import { API_CREATE_NOTES, API_UPDATE_NOTES } from "../utils/APIs";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, Snackbar } from "react-native-paper";
 import { useFetch } from "../hooks/useFetch";
 
 const priorities = [
@@ -34,6 +34,10 @@ export const EditNote = ({ navigation, route }) => {
   const [descriptionHeight, setDescriptionHeight] = useState(28);
 
   const handleUpdateNote = useGlobalStore((s) => s.handleUpdateNote);
+  const handleAddFavorites = useGlobalStore((s) => s.handleAddFavorites);
+  const handleRemoveFromFavorites = useGlobalStore(
+    (s) => s.handleRemoveFromFavorites
+  );
 
   const { loading, error, handleFetch } = useFetch(`${API_UPDATE_NOTES}${id}`);
 
@@ -50,6 +54,7 @@ export const EditNote = ({ navigation, route }) => {
     const res = await handleFetch("PATCH", obj);
 
     handleUpdateNote(res);
+    res.isFavorite ? handleAddFavorites(res) : handleRemoveFromFavorites(res);
   };
 
   return (

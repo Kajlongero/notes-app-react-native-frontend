@@ -6,11 +6,13 @@ import { API_UPDATE_NOTES } from "../utils/APIs";
 import { useFetch } from "../hooks/useFetch";
 
 export const NoteItem = (props) => {
-  const navigate = useNavigation();
-
   const { id, title, description, isFavorite, createdAt } = props;
-  const updateNote = useGlobalStore((state) => state.handleUpdateNote);
-  const deleteCategory = useGlobalStore((state) => state.toggleDeleteCategory);
+
+  const navigate = useNavigation();
+  const addFavorite = useGlobalStore((state) => state.handleAddFavorites);
+  const deleteFavorite = useGlobalStore(
+    (state) => state.handleRemoveFromFavorites
+  );
   const toggleModalDeleteNote = useGlobalStore(
     (state) => state.toggleDeleteNote
   );
@@ -25,13 +27,16 @@ export const NoteItem = (props) => {
   };
 
   const handleAddFavorites = async () => {
-    if (!loading) {
-      const changeFavorite = await handleFetch("PATCH", {
-        isFavorite: !isFavorite,
-      });
+    const changeFavorite = await handleFetch("PATCH", {
+      isFavorite: !isFavorite,
+    });
 
-      updateNote(changeFavorite);
+    if (!isFavorite) {
+      addFavorite(changeFavorite);
+      return;
     }
+
+    deleteFavorite(changeFavorite);
   };
 
   const handleLongPress = () => {
